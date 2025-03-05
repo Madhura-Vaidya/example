@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 
 
@@ -52,6 +53,7 @@ public class BookService {
 
     /*
     Given name of author find books by author
+    throw NoSuchElementException if the book can not be found.
      */
     public List<Book> findBooksByAuthor(String author){
         List<Book> booksByAuthor = bookRepository.findByAuthor(author);
@@ -60,6 +62,24 @@ public class BookService {
             throw new NoSuchElementException("Could not find any book by this author");
         }
         return booksByAuthor;
+    }
+
+    public Book updateBook(Book updateBook){
+        bookRepository.findById(updateBook.getBookNumber())
+                .orElseThrow(() -> new NoSuchElementException("The book is not found"));
+        return bookRepository.save(updateBook);
+    }
+
+    public Book partialUpdateBook(Long bookNumber, Optional<String> title, Optional<String> author,
+                                  Optional<LocalDate> publishedDate, Optional<Boolean> isKidFriendly){
+        Book book = bookRepository.findById(bookNumber).
+                orElseThrow(() -> new NoSuchElementException("The book is not found"));;
+        title.ifPresent(t -> book.setTitle(t));
+        author.ifPresent((a -> book.setAuthor(a)));
+        publishedDate.ifPresent(d -> book.setPublishedDate(d));
+        isKidFriendly.ifPresent(k -> book.setKidFriendly(k));
+
+        return bookRepository.save(book);
     }
 
     private Book verifyBook(String title) {

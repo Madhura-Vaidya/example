@@ -5,8 +5,10 @@ import com.example.service.BookService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(path = "/book")
@@ -42,6 +44,20 @@ public class BookController {
 
     }
 
+    @PutMapping
+    @ResponseStatus(HttpStatus.OK)
+    public Book updateBook(@RequestBody Book book){
+        return bookService.updateBook(book);
+
+    }
+
+    @PatchMapping
+    @ResponseStatus(HttpStatus.OK)
+    public Book partialUpdateBook(@RequestBody Book book){
+        return bookService.partialUpdateBook(book.getBookNumber(), Optional.ofNullable(book.getTitle()), Optional.ofNullable(book.getAuthor()),
+                Optional.ofNullable(book.getPublishedDate()), Optional.ofNullable(book.isKidFriendly()));
+
+    }
     @ExceptionHandler(NoSuchElementException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String notFound(NoSuchElementException exception){
